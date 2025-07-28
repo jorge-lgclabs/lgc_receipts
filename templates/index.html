@@ -1,0 +1,100 @@
+<!-- Page Header-->
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Receipt Uploader - LGCLabs</title>
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
+    </head>
+
+  <div class="container position-relative px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="page-heading">
+          <h1>Store receipts on cloud storage</h1>
+          <span class="subheading">Upload a photo of the receipt and fill out the appropriate information.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<!-- Main Content-->
+<main class="mb-4">
+  <div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+      <div class="col-md-10 col-lg-8 col-xl-7">
+        <div class="my-5">
+          <form
+            id="uploadForm"
+            name="uploadReceipt"
+            action="/"
+            method="post"
+            enctype=multipart/form-data
+          >
+              <div class="form-floating">
+                  <h5>Select photo file: </h5>
+                <input type="file" id="photo" name="photo">
+              </div>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                id="entered_date"
+                name="entered_date"
+                type="date"
+                required
+              />
+              <label for="entered_date">Date *</label>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Enter name of vendor..."
+                required
+              />
+              <label for="name">Vendor *</label>
+            </div>
+            <div class="form-floating">
+              <input
+                class="form-control"
+                id="amount"
+                name="amount"
+                type="number"
+                placeholder="Enter transaction amount..."
+                required
+              />
+              <label for="amount">Amount *</label>
+            </div>
+            <div class="form-floating">
+                <h5>Select a category: </h5>
+                <select id="category" name="category">
+                    <option value="meal">Meal</option>
+                    <option value="travel">Travel</option>
+                    <option value="supplies">Supplies</option>
+                    <option value="expense">Business Expense</option>
+                </select>
+            </div>
+            <br />
+            <button
+              class="btn btn-primary text-uppercase"
+              id="submitButton"
+              type="submit"
+            >
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
