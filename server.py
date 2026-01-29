@@ -3,7 +3,7 @@ import json
 from flask import Flask, render_template, request, flash, url_for
 from werkzeug.utils import redirect
 from PIL import Image
-from functions import extract_datetime
+from functions import extract_datetime, date_rewrite
 
 UPLOAD_FOLDER = 'to_be_uploaded'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -46,6 +46,12 @@ def post():
     else:
         flash('Please select image file (.png, .jpg, .jpeg)', 'error')
         return redirect(url_for('home'))
+
+    date_rewrite_result = date_rewrite(date, filepath)
+    if date_rewrite_result:
+        flash(f'{date}-{vendor.replace(" ", "_")}.{extension} date successfully changed', 'success')
+    else:
+        flash('There was an error while changing the date of the file', 'error')
 
 
     return redirect(url_for('home'))

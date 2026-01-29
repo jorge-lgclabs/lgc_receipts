@@ -2,6 +2,7 @@
 
 from PIL import Image
 from PIL.ExifTags import TAGS
+import os
 from datetime import datetime
 
 def extract_datetime(file_path):
@@ -24,3 +25,19 @@ def extract_datetime(file_path):
     except Exception as e:
         print(f"Error processing file {file_path}: {e}")
     return 0
+
+def date_to_epoch(date_string: str) -> float:
+    """Receives a date string in mm-dd-yyyy format and returns that date in epoch time"""
+    date_strings = date_string.split('-')
+    year = int(date_strings[0])
+    month = int(date_strings[1])
+    day = int(date_strings[2])
+    date_obj = datetime(year, month, day, 0, 0, 0)
+
+    return date_obj.timestamp()
+
+def date_rewrite(date: str, filepath: str):
+    """Receives a date string and a filepath and modifies the timestamp on the image file to reflect that date"""
+    epoch_time = date_to_epoch(date)
+    os.utime(filepath, (epoch_time, epoch_time))
+    return True
