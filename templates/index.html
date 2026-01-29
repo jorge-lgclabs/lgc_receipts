@@ -21,11 +21,21 @@
         <div class="page-heading">
           <h1>Store receipts on cloud storage</h1>
           <span class="subheading">Upload a photo of the receipt and fill out the appropriate information.</span>
+             {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class=flashes>
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+                {% block body %}{% endblock %}
         </div>
       </div>
     </div>
   </div>
-</header>
+
 <!-- Main Content-->
 <main class="mb-4">
   <div class="container px-4 px-lg-5">
@@ -39,6 +49,7 @@
             method="post"
             enctype=multipart/form-data
           >
+              <img id="preview" alt="image preview will go here once loaded" style="width:0%; height:0%; object-fit:contain; visibility:hidden;" onload="this.style.visibility='visible'; this.style.width='65%'; this.style.height='65%';" />
               <div class="form-floating">
                   <h5>Select photo file: </h5>
                 <input type="file" id="photo" name="photo">
@@ -69,21 +80,22 @@
                 id="amount"
                 name="amount"
                 type="number"
+                step="0.01"
                 placeholder="Enter transaction amount..."
                 required
               />
               <label for="amount">Amount *</label>
             </div>
             <div class="form-floating">
-                <h5>Select a category: </h5>
+                <h5>Select a category: *</h5>
                 <select id="category" name="category">
-                    <option value="meal">Meal</option>
-                    <option value="travel">Travel</option>
-                    <option value="supplies">Supplies</option>
-                    <option value="expense">Business Expense</option>
+                    <option value="Meal">Meal</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Supplies">Supplies</option>
+                    <option value="Expense">Business Expense</option>
                 </select>
             </div>
-            <br />
+            <h3>* Required Field</h3>
             <button
               class="btn btn-primary text-uppercase"
               id="submitButton"
@@ -91,7 +103,55 @@
             >
               Submit
             </button>
+            </div>
           </form>
+            <script>
+                const fileInput = document.getElementById('photo');
+                const form = document.getElementById('uploadForm');
+                const preview = document.getElementById('preview');
+
+                fileInput.addEventListener('change', async e => {
+
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    // only allow .jpg, .jpeg or .png
+                    const validExts = ['jpg', 'jpeg', 'png'];
+                    const name    = file.name.toLowerCase();
+                    const ext     = name.slice(name.lastIndexOf('.') + 1);
+
+                    if (!validExts.includes(ext)) {
+                        alert('please only upload image file');
+                        e.target.value = '';   // clear the input
+                        return;
+                    }
+                    preview.src = URL.createObjectURL(file);
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    try {
+                        const res = await fetch('/pre-process', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await res.text();
+                        if (!res.ok) return;
+                        const date = data;
+                        // console.log(date);
+
+                        const dateField = document.getElementById('entered_date');;
+
+                        if (date == 'null') {
+                            dateField.value = new Date().toISOString().slice(0, 10);
+                        } else {
+                            dateField.value = date;
+                        }}
+                     catch (err) {
+                     status.textContent = 'Error: ' + err.message;
+                     }
+
+                });
+              </script>
         </div>
       </div>
     </div>

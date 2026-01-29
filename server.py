@@ -1,6 +1,8 @@
 import os.path
 import json
 from flask import Flask, render_template, request, flash
+from functions import extract_datetime
+
 UPLOAD_FOLDER = 'to_be_uploaded'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -10,6 +12,15 @@ app.config[UPLOAD_FOLDER] = UPLOAD_FOLDER
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/pre-process', methods=["post"])
+def pre_process_date():
+    incoming_filename = f'pre_process/{request.files['file'].filename}'
+    request.files['file'].save(incoming_filename)
+
+    result = extract_datetime(incoming_filename)
+
+    return result
 
 @app.route('/', methods=["post"])
 def post():
