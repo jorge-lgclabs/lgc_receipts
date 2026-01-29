@@ -1,5 +1,4 @@
 import os.path
-import json
 from flask import Flask, render_template, request, flash, url_for
 from werkzeug.utils import redirect
 from PIL import Image
@@ -56,11 +55,16 @@ def post():
     else:
         flash('There was an error while changing the date of the file', 'error')
 
+    #  write result to spreadsheet
     spreadsheet_write_result = spreadsheet_writer(date, vendor, amount, category)
     if spreadsheet_write_result:
         flash(f'{date}-{vendor} was successfully added to the spreadsheet', 'success')
     else:
         flash('There was an error while adding entry to the spreadsheet', 'error')
+
+    #  delete the pre-processed file
+    for filename in os.listdir('pre_process'):
+        os.remove(f'pre_process/{filename}')
 
     return redirect(url_for('home'))
 
