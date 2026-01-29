@@ -3,7 +3,7 @@ import json
 from flask import Flask, render_template, request, flash, url_for
 from werkzeug.utils import redirect
 from PIL import Image
-from functions import extract_datetime, date_rewrite
+from functions import extract_datetime, date_rewrite, spreadsheet_writer
 
 UPLOAD_FOLDER = 'to_be_uploaded'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -35,24 +35,32 @@ def post():
     photo_filename = photo.filename
     extension = photo_filename.split(".")[-1]
 
-    if extension in ALLOWED_EXTENSIONS:
-        filepath = f'{UPLOAD_FOLDER}/{date}-{vendor.replace(" ", "_")}-{amount}.{extension}'
-
-        resize_image = Image.open(photo)
-        resize_image.thumbnail((1300, 1300))
-        resize_image.save(filepath)
-
-        flash(f'{filepath} successfully saved ', 'success')
-    else:
+    # filetype check
+    if extension not in ALLOWED_EXTENSIONS:
         flash('Please select image file (.png, .jpg, .jpeg)', 'error')
         return redirect(url_for('home'))
 
+    #  resize image, give it vendor-amount filename, save it to upload folder
+    filepath = f'{UPLOAD_FOLDER}/{date}-{vendor}-{amount}.{extension}'
+
+    resize_image = Image.open(photo)
+    resize_image.thumbnail((1300, 1300))
+    resize_image.save(filepath)
+
+    flash(f'{filepath} successfully saved ', 'success')
+
+    #  change modified date of newly saved image to the date entered on form
     date_rewrite_result = date_rewrite(date, filepath)
     if date_rewrite_result:
         flash(f'{date}-{vendor.replace(" ", "_")}.{extension} date successfully changed', 'success')
     else:
         flash('There was an error while changing the date of the file', 'error')
 
+    spreadsheet_write_result = spreadsheet_writer(date, vendor, amount, category)
+    if spreadsheet_write_result:
+        flash(f'{date}-{vendor} was successfully added to the spreadsheet', 'success')
+    else:
+        flash('There was an error while adding entry to the spreadsheet', 'error')
 
     return redirect(url_for('home'))
 

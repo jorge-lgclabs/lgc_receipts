@@ -2,6 +2,7 @@
 
 from PIL import Image
 from PIL.ExifTags import TAGS
+import csv
 import os
 from datetime import datetime
 
@@ -40,4 +41,21 @@ def date_rewrite(date: str, filepath: str):
     """Receives a date string and a filepath and modifies the timestamp on the image file to reflect that date"""
     epoch_time = date_to_epoch(date)
     os.utime(filepath, (epoch_time, epoch_time))
+    return True
+
+def spreadsheet_writer(date: str, vendor: str, amount: str, category: str):
+    """Receives a date, vendor, amount, and category and writes it as a new row in spreadsheet/receipts.csv"""
+    #  check if spreadsheet/receipts.csv exists, if not, create it with header row
+    if not os.path.exists('spreadsheet/receipts.csv'):
+        with open(f'spreadsheet/receipts.csv', 'w', newline='') as initial_spreadsheet:
+            initial_writer = csv.writer(initial_spreadsheet)
+            initial_writer.writerow(['Date', 'Vendor', 'Amount', 'Category'])
+        initial_spreadsheet.close()
+
+    # write new data to receipts.csv
+    with open(f'spreadsheet/receipts.csv', 'a', newline='') as spreadsheet:
+        writer = csv.writer(spreadsheet)
+        writer.writerow([date, vendor, amount, category])
+    spreadsheet.close()
+
     return True
