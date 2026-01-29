@@ -1,12 +1,15 @@
 import os.path
 import json
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, url_for
+from werkzeug.utils import redirect
+from PIL import Image
 from functions import extract_datetime
 
 UPLOAD_FOLDER = 'to_be_uploaded'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__)
+app.secret_key = b'a3%TgB#\"Mo1z\n\xd5/?'
 app.config[UPLOAD_FOLDER] = UPLOAD_FOLDER
 
 @app.route('/')
@@ -31,22 +34,21 @@ def post():
     photo = request.files['photo']
     photo_filename = photo.filename
     extension = photo_filename.split(".")[-1]
+
     if extension in ALLOWED_EXTENSIONS:
-        photo.save(os.path.join(app.config[UPLOAD_FOLDER], f'{vendor}-{date}.{extension}'))
-    meta_dict = {}
-    meta_dict['vendor'] = vendor
-    meta_dict['date'] = date
-    meta_dict['amount'] = amount
-    meta_dict['category'] = category
+        filepath = f'{UPLOAD_FOLDER}/{date}-{vendor.replace(" ", "_")}-{amount}.{extension}'
 
-    with open(f'{UPLOAD_FOLDER}/{vendor}-{date}.json', 'w') as file:
-        json.dump(meta_dict, file, indent=4)
+        resize_image = Image.open(photo)
+        resize_image.thumbnail((1300, 1300))
+        resize_image.save(filepath)
+
+        flash(f'{filepath} successfully saved ', 'success')
+    else:
+        flash('Please select image file (.png, .jpg, .jpeg)', 'error')
+        return redirect(url_for('home'))
 
 
-
-    #flash('que es esto')
-
-    return f"{date}, {vendor}, {amount}, {category}"
+    return redirect(url_for('home'))
 
 
 app.run(debug=True)
